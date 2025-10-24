@@ -1,0 +1,14 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "3a76c045-be9f-4143-b735-fcd7fd26f38e")
+	(paper "A4")
+	(title_block
+		(company "Ege Turan")
+		(comment 2 "Stanford, CA 94305")
+		(comment 3 "Electrical Engineering Department")
+		(comment 4 "Stanford University")
+	)
+	(lib_symbols)
+)

@@ -1,0 +1,50 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "79b59914-b35d-4451-9823-9568c0e48029")
+	(paper "A4")
+	(title_block
+		(company "Ege Turan")
+		(comment 2 "Stanford, CA 94305")
+		(comment 3 "Electrical Engineering Department")
+		(comment 4 "Stanford University")
+	)
+	(lib_symbols)
+	(hierarchical_label "V5out"
+		(shape output)
+		(at 138.43 105.41 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "1739ef48-72ad-430b-8438-4bc8c1b27df7")
+	)
+	(hierarchical_label "Vbattery"
+		(shape input)
+		(at 138.43 101.6 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "5d6bcd1f-cbdb-4ac2-bcc6-f32c68d6eb89")
+	)
+	(hierarchical_label "GND"
+		(shape passive)
+		(at 138.43 109.22 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "928c5c9f-7263-413e-913b-103ce89fe94a")
+	)
+)
