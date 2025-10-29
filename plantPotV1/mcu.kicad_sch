@@ -2688,6 +2688,18 @@
 			)
 		)
 	)
+	(hierarchical_label "CS"
+		(shape output)
+		(at 134.62 52.07 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "09d1d4a4-135a-462e-bc9c-e31558a28b25")
+	)
 	(hierarchical_label "SDA"
 		(shape output)
 		(at 110.49 50.8 0)
@@ -2699,6 +2711,18 @@
 			(justify left)
 		)
 		(uuid "2d0e869e-b128-4a33-bc73-ea37d3e325ca")
+	)
+	(hierarchical_label "MISO"
+		(shape input)
+		(at 134.62 48.26 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "36692855-8a88-4e40-98dc-77628e1fbfab")
 	)
 	(hierarchical_label "GND"
 		(shape passive)
@@ -2724,21 +2748,9 @@
 		)
 		(uuid "45b05280-ea8c-4cd2-aaa4-eea2238e484b")
 	)
-	(hierarchical_label "Vmic"
-		(shape input)
-		(at 161.29 50.8 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "77bce376-790c-46f1-af79-346bb14a44ad")
-	)
-	(hierarchical_label "Vspeaker+"
+	(hierarchical_label "MTR_CTRL"
 		(shape output)
-		(at 133.35 46.99 0)
+		(at 181.61 48.26 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2746,19 +2758,7 @@
 			)
 			(justify left)
 		)
-		(uuid "834ed157-86fd-46cf-8e16-2b1f2f9b06eb")
-	)
-	(hierarchical_label "Vspeaker-"
-		(shape output)
-		(at 133.35 50.8 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "b8849b85-c70c-40bf-9a20-de0efca5a884")
+		(uuid "b508d0d1-b59a-489d-bb48-cf1f5ace96d5")
 	)
 	(hierarchical_label "SCL"
 		(shape output)
@@ -2783,6 +2783,30 @@
 			(justify left)
 		)
 		(uuid "cc1353c0-1c14-4377-94f3-99285eb0782a")
+	)
+	(hierarchical_label "MOSI"
+		(shape output)
+		(at 134.62 44.45 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "d356ebe3-2700-4ee3-9097-3a9bf2ca39d7")
+	)
+	(hierarchical_label "SCK"
+		(shape output)
+		(at 134.62 40.64 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e826e69b-0410-489c-b24d-61a70fbb7ec0")
 	)
 	(hierarchical_label "Vsoil"
 		(shape input)

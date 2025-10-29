@@ -308,7 +308,7 @@
 		)
 		(uuid "886e93f0-b4bb-4e17-baef-cd5474afca7c")
 	)
-	(hierarchical_label "Data"
+	(hierarchical_label "SDA"
 		(shape input)
 		(at 86.36 67.31 0)
 		(fields_autoplaced yes)
@@ -320,7 +320,7 @@
 		)
 		(uuid "29675094-e495-4a6e-a5e7-07d9bd3156db")
 	)
-	(hierarchical_label "Clk"
+	(hierarchical_label "SCL"
 		(shape input)
 		(at 86.36 64.77 0)
 		(fields_autoplaced yes)
