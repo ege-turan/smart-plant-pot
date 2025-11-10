@@ -1,0 +1,9 @@
+../Core/Src/text5x7.c:41:6:txt_init	16	static
+../Core/Src/text5x7.c:44:6:txt_set_cursor	16	static
+../Core/Src/text5x7.c:45:6:txt_set_scale	16	static
+../Core/Src/text5x7.c:46:6:txt_set_wrap	16	static
+../Core/Src/text5x7.c:47:6:txt_set_color	16	static
+../Core/Src/text5x7.c:49:13:draw_pixel_scaled	24	static
+../Core/Src/text5x7.c:67:9:ssd1306_drawChar	48	static
+../Core/Src/text5x7.c:116:10:ssd1306_drawText	32	static
+../Core/Src/text5x7.c:124:5:ssd1306_printf	152	static
