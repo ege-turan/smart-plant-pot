@@ -17,23 +17,28 @@
  */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
 #include "adc.h"
 #include "can.h"
 #include "comp.h"
 #include "gpio.h"
 #include "i2c.h"
+#include "main.h"
 #include "sai.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "usb_otg.h"
 
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "ssd1306.h"
-#include "text5x7.h"
+#include <math.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+
+// #include "ssd1306.h"
+// #include "text5x7.h"
+#include "airlift.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,7 +59,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-static ssd1306_t oled;
+// static ssd1306_t oled;
 
 /* USER CODE END PV */
 
@@ -127,6 +132,79 @@ int main(void) {
   MX_I2C4_Init();
   /* USER CODE BEGIN 2 */
   printf("Hello from Nucleo-L4R5ZI-P!\r\n");
+  printf("RST=%d BUSY=%d (before)\r\n",
+         HAL_GPIO_ReadPin(AIRLIFT_RST_GPIO_Port, AIRLIFT_RST_Pin),
+         HAL_GPIO_ReadPin(AIRLIFT_BUSY_GPIO_Port, AIRLIFT_BUSY_Pin));
+
+  HAL_GPIO_WritePin(AIRLIFT_RST_GPIO_Port, AIRLIFT_RST_Pin, GPIO_PIN_RESET);
+  HAL_Delay(10);
+  HAL_GPIO_WritePin(AIRLIFT_RST_GPIO_Port, AIRLIFT_RST_Pin, GPIO_PIN_SET);
+
+  uint32_t t0 = HAL_GetTick();
+  while (HAL_GPIO_ReadPin(AIRLIFT_BUSY_GPIO_Port, AIRLIFT_BUSY_Pin) ==
+         GPIO_PIN_SET) {
+    if (HAL_GetTick() - t0 > 3000) {
+      printf("BUSY stuck HIGH\r\n");
+      break;
+    }
+  }
+  printf("BUSY went LOW (ready)\r\n");
+  printf("Hello from Nucleo-L4R5ZI-P!\r\n");
+
+  // bring up AirLift
+  airlift_t wifi;
+  if (airlift_init(&wifi, &hspi1) == HAL_OK) {
+    uint8_t count = 0;
+    (void)airlift_scan(&wifi, &count);
+    printf("Found %u networks\r\n", count);
+
+    // Example: eduroam-style
+    if (airlift_connect_enterprise(&wifi, "eduroam",
+                                   "samgupta@stanford.edu", // username
+                                   "",   // password (redacted)
+                                   NULL, // optional anonymous identity
+                                   20000) == HAL_OK) {
+      uint8_t ip[4];
+      (void)airlift_get_ip(&wifi, ip);
+      printf("IP: %u $u $u $u", ip[0], ip[1], ip[2], ip[3]);
+
+      airlift_http_get_print(&wifi, "example.com", "/");
+    }
+  }
+
+  //  // If your SA0/DC is tied LOW and your OLED address is 0x3D, adjust the
+  //  define in ssd1306.h if (ssd1306_init(&oled, &hi2c1) != HAL_OK) {
+  //      printf("SSD1306 init failed\r\n");
+  //  }
+  //
+  //  // Draw a simple pattern
+  //  ssd1306_fill(&oled, 0);
+  //  for (uint8_t x = 0; x < SSD1306_WIDTH; ++x) {
+  //      ssd1306_pixel(&oled, x, x/2, 1);                           // diagonal
+  //      ssd1306_pixel(&oled, SSD1306_WIDTH-1-x, x/2, 1);           // other
+  //      diagonal
+  //  }
+  //  ssd1306_update(&oled);
+  //
+  //  // Clear screen
+  //  ssd1306_fill(&oled, 0);
+  //
+  //  // Text config
+  //  txt_cfg_t txt;
+  //  txt_init(&txt);                      // x=y=0, scale=1, wrap=1
+  //  txt_set_scale(&txt, 1);              // 1=normal 5x7, 2=10x14, etc.
+  //  txt_set_color(&txt, TXT_ON);
+  //
+  //  // Say hello
+  ////  ssd1306_printf(&oled, &txt, "Hello, 0x%02X!\n", SSD1306_I2C_ADDR);
+  //
+  //  // Move cursor and draw bigger text
+  //  txt_set_cursor(&txt, 0, 1);
+  //  txt_set_scale(&txt, 2);
+  //  ssd1306_drawText(&oled, &txt, "Hi Nancy ! :)");
+  //
+  //  // Push to panel
+  //  ssd1306_update(&oled);
 
   /* USER CODE END 2 */
 
