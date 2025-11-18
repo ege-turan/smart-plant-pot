@@ -4,7 +4,7 @@
 
 SPI:
 - Camera: SPI1 (PA4,5,6,7 NSS, SCK, MISO, MOSI)
-- WiFi: SPI2 (PB 12,13,14,15 NSS, SCK, MISO, MOSI)
+- WiFi: SPI2 (PB12, PB13, PD3, PB15 NSS, SCK, MISO, MOSI)
 - (N/A): SPI3 (PA15, PB3,4,5 NSS, SCK, MISO, MOSI)
 
 I2C:
@@ -14,7 +14,7 @@ I2C:
 - Camera: I2C4 (PF14 SCL, PF15 SDA)
 
 GPIO:
-- WiFi: two GPIO pins (PG0 BUSY, PG1 RST)
+- WiFi: two GPIO pins (PG0 RST, PG1 BUSY)
 - Temperature sensor: one GPIO pin (PF5 INPUT)
 - Valve: one GPIO pin gated by NMOS (PF3 OUTPUT)
 - Grow light: DAC or just a GPIO pin (PE4 OUTPUT)
