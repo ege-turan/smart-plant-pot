@@ -2,9 +2,9 @@
 
 ## Pin map
 
-SPI (PA4 NSS):
-- Camera: SPI1 (PA5,6,7 SCK, MISO, MOSI)
-- WiFi: SPI3 (PB3,4,5 SCK, MISO, MOSI)
+SPI:
+- Camera: SPI1 (PA4,5,6,7 NSS, SCK, MISO, MOSI)
+- WiFi: SPI3 (PA15, PB3,4,5 NSS, SCK, MISO, MOSI)
 
 I2C:
 - Display: I2C1 (PB8 SCL, PB9 SDA)
