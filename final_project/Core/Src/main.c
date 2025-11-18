@@ -29,11 +29,9 @@
 #include "usart.h"
 #include "usb_otg.h"
 
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "ssd1306.h"
-#include "text5x7.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,7 +52,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-static ssd1306_t oled;
+// static ssd1306_t oled;
 
 /* USER CODE END PV */
 
