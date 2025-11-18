@@ -1,8 +1,0 @@
-../Core/Src/ssd1306.c:8:26:write_cmd	1
-../Core/Src/ssd1306.c:13:26:write_cmds	3
-../Core/Src/ssd1306.c:27:26:write_data	3
-../Core/Src/ssd1306.c:41:26:set_addressing_window	1
-../Core/Src/ssd1306.c:50:19:ssd1306_init	2
-../Core/Src/ssd1306.c:89:19:ssd1306_update	2
-../Core/Src/ssd1306.c:95:6:ssd1306_fill	2
-../Core/Src/ssd1306.c:99:6:ssd1306_pixel	4
