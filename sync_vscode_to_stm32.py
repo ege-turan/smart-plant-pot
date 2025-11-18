@@ -1,17 +1,32 @@
-# Copies contents of vscode final_project folder to stm32 final_project folder
-VSCODE_FOLDER = "./final_project"
-STM32_FOLDER = "../../../STM32CubeIDE/workspace_1.19.0/final_project"
-VSCODE_TO_STM32 = True
-
+# CLI tool to sync folders between two locations.
+import os
 import shutil
+import sys
 
-if VSCODE_TO_STM32:
-    # Delete contents of STM32_FOLDER
-    shutil.rmtree(STM32_FOLDER)
-    # Copy contents of VSCODE_FOLDER to STM32_FOLDER
-    shutil.copytree(VSCODE_FOLDER, STM32_FOLDER)
+# Sample command to copy from src to dst:
+# python sync_vscode_to_stm32.py ./final_project ../../../STM32CubeIDE/workspace_1.19.0/final_project
+
+# Sample command to copy back HAL updates (will overwrite any uncommitted local changes):
+# python sync_vscode_to_stm32.py ./final_project ../../../STM32CubeIDE/workspace_1.19.0/final_project --reverse
+src_folder = sys.argv[1]
+dst_folder = sys.argv[2]
+
+reverse = False
+if len(sys.argv) > 3 and sys.argv[3] == "--reverse":
+    reverse = True
+
+if reverse:
+    src, dst = dst_folder, src_folder
+    print(f"Copying {src} -> {dst}")
 else:
-    # Delete contents of VSCODE_FOLDER
-    shutil.rmtree(VSCODE_FOLDER)
-    # Copy contents of STM32_FOLDER to VSCODE_FOLDER
-    shutil.copytree(STM32_FOLDER, VSCODE_FOLDER)
+    src, dst = src_folder, dst_folder
+    print(f"Copying {src} -> {dst}")
+
+if not os.path.exists(src):
+    print(f"Source folder '{src}' does not exist.")
+    sys.exit(1)
+
+if os.path.exists(dst):
+    shutil.rmtree(dst)
+shutil.copytree(src, dst)
+print("Done.")
