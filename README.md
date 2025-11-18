@@ -4,19 +4,23 @@
 
 SPI:
 - Camera: SPI1 (PA4,5,6,7 NSS, SCK, MISO, MOSI)
-- WiFi: SPI3 (PA15, PB3,4,5 NSS, SCK, MISO, MOSI)
+- WiFi: SPI2 (PB 12,13,14,15 NSS, SCK, MISO, MOSI)
+- (N/A): SPI3 (PA15, PB3,4,5 NSS, SCK, MISO, MOSI)
 
 I2C:
 - Display: I2C1 (PB8 SCL, PB9 SDA)
 - Soil sensor: I2C2 (PF0 SCL, PF1 SDA)
+- Battery sensor: I2C3 (PC0 SCL, PC1 SDA)
 - Camera: I2C4 (PF14 SCL, PF15 SDA)
-- Battery sensor: Not assigned for now
 
-Other:
-- Light Sensor: ADC
-- Temperature sensor: one GPIO pin
-- Valve: one GPIO pin (gated by NMOS)
-- Grow light: DAC or just a GPIO pin
+GPIO:
+- WiFi: two GPIO pins (PG0 BUSY, PG1 RST)
+- Temperature sensor: one GPIO pin (PF5 INPUT)
+- Valve: one GPIO pin gated by NMOS (PF3 OUTPUT)
+- Grow light: DAC or just a GPIO pin (PE4 OUTPUT)
+
+ADC:
+- Light Sensor: ADC1 IN3 (PC2)
 
 ## Commands
 
