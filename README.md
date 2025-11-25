@@ -12,10 +12,10 @@ I2C:
 - Soil sensor: I2C2 (PF0 SCL, PF1 SDA)
 - Battery sensor: I2C3 (PC0 SCL, PC1 SDA)
 - Camera: I2C4 (PF14 SCL, PF15 SDA)
+- Temperature sensor: I2C2 (PF0 SCL, PF1 SDA)
 
 GPIO:
 - WiFi: two GPIO pins (PG0 RST, PG1 BUSY)
-- Temperature sensor: one GPIO pin (PF5 INPUT)
 - Valve: one GPIO pin gated by NMOS (PF3 OUTPUT)
 - Grow light: DAC or just a GPIO pin (PE4 OUTPUT)
 
