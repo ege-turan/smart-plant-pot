@@ -17,11 +17,8 @@ I2C:
 GPIO:
 - WiFi: two GPIO pins (PG0 RST, PG1 BUSY)
 - Valve: one GPIO pin gated by NMOS (PF3 OUTPUT)
-- Grow light: DAC or just a GPIO pin (PE4 OUTPUT)
 
-ADC:
-- Light Sensor: ADC1 IN3 (PC2)
-
+## Display pins
 VCC
 GND
 LCD_CS
