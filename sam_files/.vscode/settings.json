@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "lightsensor.h": "c",
+        "stdio.h": "c"
+    }
+}

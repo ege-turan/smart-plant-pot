@@ -37,6 +37,8 @@
 #include <string.h>
 #include <stdint.h>
 
+#include "lightsensor.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -109,7 +111,7 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_I2C1_Init();
+  MX_I2C2_Init();
   MX_LPUART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
@@ -119,8 +121,7 @@ int main(void)
   // declare variable for holding light value
   uint16_t read_value = 0;
   // initialize
-  I2C1_write(BH1750_ADDR, 0x01);
-  I2C1_write(BH1750_ADDR, 0x10);
+  bh1750_init(BH1750_ADDR);
 
   /* USER CODE END 2 */
 
@@ -135,7 +136,7 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 	// read from X, Y, Z registers
-	read_value = I2C1_read(BH1750_ADDR);
+	read_value = bh1750_read(BH1750_ADDR);
 	printf("\rValue: %d\n\r", read_value);
 	HAL_Delay(100);
 

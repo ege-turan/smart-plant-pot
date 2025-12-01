@@ -34,20 +34,20 @@ extern "C" {
 
 extern I2C_HandleTypeDef hi2c1;
 
-extern SMBUS_HandleTypeDef hsmbus2;
+extern I2C_HandleTypeDef hi2c2;
 
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
 
 void MX_I2C1_Init(void);
-void MX_I2C2_SMBUS_Init(void);
+void MX_I2C2_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
-void I2C1_write(uint16_t device_addr, uint8_t write_byte);
+void I2C2_write(uint16_t device_addr, uint8_t write_byte);
 
-uint16_t I2C1_read(uint16_t device_addr);
+uint16_t I2C2_read(uint16_t device_addr);
 
 /* USER CODE END Prototypes */
 
