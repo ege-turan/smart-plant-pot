@@ -21,6 +21,7 @@
 #include "adc.h"
 #include "can.h"
 #include "comp.h"
+#include "dma.h"
 #include "i2c.h"
 #include "usart.h"
 #include "sai.h"
@@ -38,6 +39,7 @@
 #include <stdint.h>
 
 #include "lightsensor.h"
+#include "servo.h"
 
 /* USER CODE END Includes */
 
@@ -111,8 +113,12 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_DMA_Init();
   MX_I2C2_Init();
   MX_LPUART1_UART_Init();
+  MX_TIM4_Init();
+
   /* USER CODE BEGIN 2 */
 
 
@@ -122,6 +128,8 @@ int main(void)
   uint16_t read_value = 0;
   // initialize
   bh1750_init(BH1750_ADDR);
+
+  servo_init();
 
   /* USER CODE END 2 */
 
@@ -136,9 +144,14 @@ int main(void)
     /* USER CODE BEGIN 3 */
 
 	// read from X, Y, Z registers
-	read_value = bh1750_read(BH1750_ADDR);
-	printf("\rValue: %d\n\r", read_value);
-	HAL_Delay(100);
+	// read_value = bh1750_read(BH1750_ADDR);
+	// printf("\rValue: %d\n\r", read_value);
+
+
+	HAL_Delay(2000);
+	servo_write_degree(180);
+	HAL_Delay(2000);
+	servo_write_degree(0);
 
   }
   /* USER CODE END 3 */
