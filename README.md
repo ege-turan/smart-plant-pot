@@ -34,6 +34,12 @@ CTP_SDA
 CTP_INT
 SD_CS
 
+## Loose ends
+Need to integrate the wifi to a webserver to pick up the images
+
+1600 x 1200 -> 200 kb
+640 x 480 
+
 ## Commands
 
 Sync code

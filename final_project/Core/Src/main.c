@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+
 #include "adc.h"
 #include "gpio.h"
 #include "i2c.h"
@@ -35,10 +36,14 @@
 #include <stdio.h>
 #include <string.h>
 
-// custom
-#include "airlift.h" // WiFi
-#include "ssd1306.h" // OLED
-#include "text5x7.h" // Text
+#include "bigdisplay.h"
+
+// temp and humidity
+#include "si7021.h"
+// soil
+#include "soil.h"
+// light sensor
+#include "lightsensor.h"
 
 /* USER CODE END Includes */
 
@@ -60,7 +65,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-// static ssd1306_t oled;
 
 /* USER CODE END PV */
 
@@ -73,10 +77,12 @@ void PeriphCommonClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 int __io_putchar(int ch) {
   HAL_UART_Transmit(&hlpuart1, (uint8_t *)&ch, 1, 10);
   return ch;
 }
+
 /* USER CODE END 0 */
 
 /**
@@ -126,7 +132,36 @@ int main(void) {
   MX_TIM4_Init();
   MX_USB_OTG_FS_USB_Init();
   /* USER CODE BEGIN 2 */
+
   printf("Hello from Nucleo-L4R5ZI-P!\r\n");
+
+  TFT_Init();
+  int m = 160;
+  TFT_FillScreen(COLOR_NAVY);
+  HAL_Delay(1000);
+  TFT_FillRect(0, 0, m, m, COLOR_RED);
+  TFT_FillRect(m, 0, m, m, COLOR_GREEN);
+  TFT_FillRect(0, m, m, m, COLOR_BLUE);
+  TFT_FillRect(m, m, m, m, COLOR_YELLOW);
+  TFT_FillRect(0, 2 * m, m, m, COLOR_CYAN);
+  TFT_FillRect(m, 2 * m, m, m, COLOR_ORANGE);
+  HAL_Delay(1000);
+  TFT_PrintfAt(10, 10, COLOR_WHITE, 2, "Hello everyone!");
+
+  if (HAL_I2C_IsDeviceReady(&hi2c2, SOIL_ADDR, 3, 100) == HAL_OK)
+    printf("Soil sensor detected\r\n");
+  else
+    printf("Soil sensor NOT detected\r\n");
+
+  uint16_t read_value = 0;
+  // initialize
+  bh1750_init(BH1750_ADDR);
+
+  float hum_air = 0.0f;
+  float temp_air = 0.0f;
+  uint16_t cap_soil = 0;
+  float temp_soil = 0.0f;
+  uint16_t light_value = 0;
 
   /* USER CODE END 2 */
 
@@ -134,8 +169,34 @@ int main(void) {
   /* USER CODE BEGIN WHILE */
   while (1) {
     /* USER CODE END WHILE */
-
     /* USER CODE BEGIN 3 */
+    hum_air = si7021_read_humidity();
+    temp_air = si7021_read_temperature();
+
+    // Read soil sensor
+    cap_soil = soil_read_capacitance();
+    temp_soil = soil_read_temperature();
+    int hum_air_int = (int)hum_air;
+    int temp_air_int = (int)temp_air;
+    int temp_soil_int = (int)temp_soil;
+
+    light_value = bh1750_read(BH1750_ADDR);
+
+    // print values of sensors
+    printf("AirRH: %d %%  \r\n", hum_air_int);
+    printf("AirTemp: %d C \r\n", temp_air_int);
+    printf("SoilCap: %u  \r\n", cap_soil);
+    printf("SoilTemp: %d C\r\n", temp_soil_int);
+    printf("Light: %u  \r\n", light_value);
+    TFT_FillScreen(COLOR_BLACK);
+
+    TFT_PrintfAt(10, 50, COLOR_WHITE, 2, "AirRH: %d \r\n", hum_air_int);
+    TFT_PrintfAt(10, 70, COLOR_WHITE, 2, "AirTemp: %d C \r\n", temp_air_int);
+    TFT_PrintfAt(10, 90, COLOR_WHITE, 2, "SoilCap: %u  \r\n", cap_soil);
+    TFT_PrintfAt(10, 110, COLOR_WHITE, 2, "SoilTemp: %d C\r\n", temp_soil_int);
+    TFT_PrintfAt(10, 130, COLOR_WHITE, 2, "Light: %u  \r\n", light_value);
+    // read and print every second
+    HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }
@@ -238,6 +299,7 @@ void Error_Handler(void) {
   }
   /* USER CODE END Error_Handler_Debug */
 }
+
 #ifdef USE_FULL_ASSERT
 /**
  * @brief  Reports the name of the source file and the source line number
@@ -248,9 +310,7 @@ void Error_Handler(void) {
  */
 void assert_failed(uint8_t *file, uint32_t line) {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line
-     number, ex: printf("Wrong parameters value: file %s on line %d\r\n", file,
-     line) */
+
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
