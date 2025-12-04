@@ -308,8 +308,44 @@
 		)
 		(uuid "886e93f0-b4bb-4e17-baef-cd5474afca7c")
 	)
-	(hierarchical_label "SDA"
+	(hierarchical_label "SCK"
 		(shape input)
+		(at 111.76 83.82 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "013bd719-459b-4874-abe9-626fa96169e2")
+	)
+	(hierarchical_label "GND"
+		(shape passive)
+		(at 86.36 69.85 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "189f8b2b-1a6f-4645-835e-e380dc09a958")
+	)
+	(hierarchical_label "INT"
+		(shape input)
+		(at 109.22 93.98 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "18c0e336-eab8-4d50-a20e-714b3fd642b4")
+	)
+	(hierarchical_label "SDA"
+		(shape bidirectional)
 		(at 86.36 67.31 0)
 		(fields_autoplaced yes)
 		(effects
@@ -318,7 +354,67 @@
 			)
 			(justify left)
 		)
-		(uuid "29675094-e495-4a6e-a5e7-07d9bd3156db")
+		(uuid "326249fa-8e80-4c16-9d13-877e9a9072f9")
+	)
+	(hierarchical_label "MOSI"
+		(shape input)
+		(at 111.76 73.66 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "6b928765-5376-4ae8-ab04-f9606a4c04f4")
+	)
+	(hierarchical_label "VIN"
+		(shape passive)
+		(at 86.36 72.39 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "77b7d782-f3eb-4d59-9999-6ce67cb8b95e")
+	)
+	(hierarchical_label "RST"
+		(shape input)
+		(at 109.22 90.17 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "8f56fffc-cdf1-4cd6-8b1e-bcf345afea2d")
+	)
+	(hierarchical_label "CS"
+		(shape input)
+		(at 111.76 69.85 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "91ba8e80-11cb-4bfc-aef9-24b0774542e5")
+	)
+	(hierarchical_label "MISO"
+		(shape output)
+		(at 111.76 78.74 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "e992e053-3c29-44c5-a008-ec8c7b360ae2")
 	)
 	(hierarchical_label "SCL"
 		(shape input)
@@ -330,31 +426,7 @@
 			)
 			(justify left)
 		)
-		(uuid "3746f00e-7f43-4144-9e0b-9701b160a205")
-	)
-	(hierarchical_label "GND"
-		(shape input)
-		(at 86.36 69.85 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "a7572464-2081-4457-a9f8-384ba1176695")
-	)
-	(hierarchical_label "VIN"
-		(shape input)
-		(at 86.36 72.39 0)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "dbc87a41-8325-40d6-b779-a709a738c921")
+		(uuid "f326091e-126e-4208-8d14-a90200034cd9")
 	)
 	(symbol
 		(lib_id "Connector:Conn_01x04_Socket")

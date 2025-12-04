@@ -617,8 +617,12 @@
       "MCU"
     ],
     [
+      "959f62d0-5cc4-4f4f-b175-0b1587b6bc3a",
+      "Light Sensor"
+    ],
+    [
       "81557b54-15f5-4940-a529-3d8baf627000",
-      "Simple Soil Moisture Sensor"
+      "Soil Moisture Sensor"
     ],
     [
       "ceef4f93-c634-4c00-8a1d-ccdf5090aa56",
@@ -630,11 +634,15 @@
     ],
     [
       "a1b8993f-2e59-421b-8c0a-0c620dbf3b08",
-      "Power"
+      "Power (Board Internal)"
     ],
     [
       "5afbfa9c-94e1-4671-8921-ce44167fc964",
-      "Motor Valve"
+      "Water Pump"
+    ],
+    [
+      "2d33a039-3da8-46db-9f5f-542bb456a3a7",
+      "Temperature Sensor"
     ]
   ],
   "text_variables": {}

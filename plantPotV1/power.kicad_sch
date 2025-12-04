@@ -11,7 +11,7 @@
 		(comment 4 "Stanford University")
 	)
 	(lib_symbols)
-	(hierarchical_label "V5out"
+	(hierarchical_label "5V"
 		(shape output)
 		(at 138.43 105.41 0)
 		(fields_autoplaced yes)
@@ -23,7 +23,19 @@
 		)
 		(uuid "1739ef48-72ad-430b-8438-4bc8c1b27df7")
 	)
-	(hierarchical_label "Vbattery"
+	(hierarchical_label "3V3"
+		(shape output)
+		(at 154.94 105.41 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "41e700e8-0645-4cbc-b05b-5b7bb7e605a6")
+	)
+	(hierarchical_label "VBAT"
 		(shape input)
 		(at 138.43 101.6 0)
 		(fields_autoplaced yes)

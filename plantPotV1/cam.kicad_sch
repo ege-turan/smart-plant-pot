@@ -993,6 +993,18 @@
 		)
 		(uuid "cd771f0c-0621-4d41-b8f7-3cdc61288def")
 	)
+	(hierarchical_label "VIN"
+		(shape passive)
+		(at 171.45 115.57 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "100a354f-b011-4e87-93a7-a5bcb01f7f6a")
+	)
 	(hierarchical_label "MISO"
 		(shape input)
 		(at 151.13 125.73 0)
@@ -1004,6 +1016,18 @@
 			(justify left)
 		)
 		(uuid "2503241b-b684-423d-800e-93be0defd321")
+	)
+	(hierarchical_label "GND"
+		(shape passive)
+		(at 171.45 120.65 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "4ad10c64-4b1d-4c07-8d5e-d3f622b96eb5")
 	)
 	(hierarchical_label "SCL"
 		(shape input)

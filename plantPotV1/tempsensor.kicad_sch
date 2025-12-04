@@ -1,0 +1,56 @@
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "38e08cbf-95b2-4ded-a40e-23fa20fe9469")
+	(paper "A4")
+	(lib_symbols)
+	(hierarchical_label "SCL"
+		(shape input)
+		(at 124.46 93.98 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "02bf8bf9-6b0f-47ed-bfd1-1af74bc55e00")
+	)
+	(hierarchical_label "GND"
+		(shape passive)
+		(at 123.19 107.95 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "08d3521d-18b9-4b57-ae1a-e388cb4563e7")
+	)
+	(hierarchical_label "VIN"
+		(shape passive)
+		(at 123.19 104.14 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "21f3e8f1-79b7-4770-9a86-78eed395f467")
+	)
+	(hierarchical_label "SDA"
+		(shape bidirectional)
+		(at 124.46 97.79 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "5fb54f9a-19bf-4ece-9095-184220bde220")
+	)
+)

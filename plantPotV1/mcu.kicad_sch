@@ -2688,9 +2688,9 @@
 			)
 		)
 	)
-	(hierarchical_label "CS"
+	(hierarchical_label "SPI1_CS (PA4)"
 		(shape output)
-		(at 134.62 52.07 0)
+		(at 132.08 33.02 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2700,8 +2700,32 @@
 		)
 		(uuid "09d1d4a4-135a-462e-bc9c-e31558a28b25")
 	)
-	(hierarchical_label "SDA"
+	(hierarchical_label "I2C1_SDA (PB9)"
+		(shape bidirectional)
+		(at 110.49 30.48 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "1392414a-1bf3-4fdd-89d1-191a490ce655")
+	)
+	(hierarchical_label "GPIO_PF7"
 		(shape output)
+		(at 181.61 40.64 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "18283dab-675a-4fe1-831f-d110bda5c0cd")
+	)
+	(hierarchical_label "I2C4_SDA (PF15)"
+		(shape bidirectional)
 		(at 110.49 50.8 0)
 		(fields_autoplaced yes)
 		(effects
@@ -2712,9 +2736,9 @@
 		)
 		(uuid "2d0e869e-b128-4a33-bc73-ea37d3e325ca")
 	)
-	(hierarchical_label "MISO"
+	(hierarchical_label "SPI1_MISO (PA7)"
 		(shape input)
-		(at 134.62 48.26 0)
+		(at 132.08 29.21 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2736,7 +2760,19 @@
 		)
 		(uuid "39ad8d90-93eb-4131-a959-ede334d6054e")
 	)
-	(hierarchical_label "V5in"
+	(hierarchical_label "I2C2_SDA (PF1)"
+		(shape bidirectional)
+		(at 110.49 40.64 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "3bedd3f8-9ba0-4771-b1bd-d18db86b5b27")
+	)
+	(hierarchical_label "VIN"
 		(shape input)
 		(at 68.58 49.53 0)
 		(fields_autoplaced yes)
@@ -2748,7 +2784,43 @@
 		)
 		(uuid "45b05280-ea8c-4cd2-aaa4-eea2238e484b")
 	)
-	(hierarchical_label "MTR_CTRL"
+	(hierarchical_label "I2C2_SCL (PF0)"
+		(shape output)
+		(at 110.49 36.83 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "9f11aa9c-5caa-453f-8984-b845af090712")
+	)
+	(hierarchical_label "SPI3_SCK (PB3)"
+		(shape output)
+		(at 138.43 40.64 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "a0d7f673-51c1-4a2b-be72-bec2e263266e")
+	)
+	(hierarchical_label "I2C1_SCL (PB8)"
+		(shape output)
+		(at 110.49 26.67 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "b4e8f7a2-6dd6-4a1b-af89-337bf082711c")
+	)
+	(hierarchical_label "GPIO_PB2"
 		(shape output)
 		(at 181.61 48.26 0)
 		(fields_autoplaced yes)
@@ -2760,7 +2832,7 @@
 		)
 		(uuid "b508d0d1-b59a-489d-bb48-cf1f5ace96d5")
 	)
-	(hierarchical_label "SCL"
+	(hierarchical_label "I2C4_SCL (PF14)"
 		(shape output)
 		(at 110.49 46.99 0)
 		(fields_autoplaced yes)
@@ -2772,9 +2844,9 @@
 		)
 		(uuid "c2f74022-ab27-4975-b707-94003eaaa716")
 	)
-	(hierarchical_label "Vtemp"
-		(shape input)
-		(at 161.29 43.18 0)
+	(hierarchical_label "GPIO_PF9"
+		(shape output)
+		(at 181.61 44.45 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2782,11 +2854,11 @@
 			)
 			(justify left)
 		)
-		(uuid "cc1353c0-1c14-4377-94f3-99285eb0782a")
+		(uuid "c6aea719-1386-43d3-a423-ff276c19fe47")
 	)
-	(hierarchical_label "MOSI"
+	(hierarchical_label "SPI1_MOSI (PA6)"
 		(shape output)
-		(at 134.62 44.45 0)
+		(at 132.08 25.4 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2796,9 +2868,21 @@
 		)
 		(uuid "d356ebe3-2700-4ee3-9097-3a9bf2ca39d7")
 	)
-	(hierarchical_label "SCK"
+	(hierarchical_label "SPI3_MOSI (PB4)"
 		(shape output)
-		(at 134.62 40.64 0)
+		(at 138.43 44.45 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "de0fbb92-07f6-4ae6-ba98-19190802d1e5")
+	)
+	(hierarchical_label "SPI1_SCK (PA5)"
+		(shape output)
+		(at 132.08 21.59 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2808,9 +2892,9 @@
 		)
 		(uuid "e826e69b-0410-489c-b24d-61a70fbb7ec0")
 	)
-	(hierarchical_label "Vsoil"
+	(hierarchical_label "SPI3_MISO (PB5)"
 		(shape input)
-		(at 161.29 46.99 0)
+		(at 138.43 48.26 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2818,7 +2902,19 @@
 			)
 			(justify left)
 		)
-		(uuid "f412f37e-c26c-4c01-8fc1-5623cffd47e9")
+		(uuid "ee056351-f714-4ba2-8451-ff8ad565e19e")
+	)
+	(hierarchical_label "SPI3_CS (PA15)"
+		(shape output)
+		(at 138.43 52.07 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "f5d3a5a8-1c7a-4af6-aa9e-44fda7d5ab4d")
 	)
 	(symbol
 		(lib_id "MCU_Module:NUCLEO144-F439ZI")
