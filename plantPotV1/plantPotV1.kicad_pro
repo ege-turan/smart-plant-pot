@@ -622,7 +622,7 @@
     ],
     [
       "81557b54-15f5-4940-a529-3d8baf627000",
-      "Soil Moisture Sensor"
+      "Soil Moisture + Temp Sensor"
     ],
     [
       "ceef4f93-c634-4c00-8a1d-ccdf5090aa56",
@@ -642,7 +642,7 @@
     ],
     [
       "2d33a039-3da8-46db-9f5f-542bb456a3a7",
-      "Temperature Sensor"
+      "Humidity + Temp Sensor"
     ]
   ],
   "text_variables": {}
