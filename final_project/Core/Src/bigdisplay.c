@@ -144,7 +144,8 @@ void TFT_Init(void) {
 
   // Set MADCTL
   tft_writeCommand(0x36);
-  tft_writeData8(0x48);
+  // 0x28 = MADCTL_MV | MADCTL_BGR : landscape, connector on the left
+  tft_writeData8(0x28);
 
   // Display on
   tft_writeCommand(0x29);
@@ -154,10 +155,13 @@ void TFT_Init(void) {
   TFT_Unselect();
 
   // Clear screen
-  TFT_FillScreen(COLOR_BLACK);
+  // TFT_FillScreen(COLOR_BLACK);
 }
 
-void TFT_FillScreen(uint16_t color) { TFT_FillRect(0, 0, 320, 480, color); }
+void TFT_FillScreen(uint16_t color) {
+  // Use logical dimensions so this stays correct for any orientation
+  TFT_FillRect(0, 0, TFT_WIDTH, TFT_HEIGHT, color);
+}
 
 void TFT_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
   if (x >= TFT_WIDTH || y >= TFT_HEIGHT) {
@@ -198,24 +202,22 @@ void TFT_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
 void TFT_FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h,
                   uint16_t color) {
 
-  // if (x >= TFT_WIDTH || y >= TFT_HEIGHT) {
-  //   return;
-  // }
-  // if ((x + w) > TFT_WIDTH) {
-  //   uint16_t old_w = w;
-  //   w = TFT_WIDTH - x;
-  // }
-  // if (y + h > TFT_HEIGHT) {
-  //   uint16_t old_h = h;
-  //   h = TFT_HEIGHT - y;
-  // }
+  if (x >= TFT_WIDTH || y >= TFT_HEIGHT) {
+    return;
+  }
+  if ((x + w) > TFT_WIDTH) {
+    uint16_t old_w = w;
+    w = TFT_WIDTH - x;
+  }
+  if (y + h > TFT_HEIGHT) {
+    uint16_t old_h = h;
+    h = TFT_HEIGHT - y;
+  }
 
   uint32_t numPixels = (uint32_t)w * (uint32_t)h;
 
-  (void)numPixels; // currently unused
+  (void)numPixels;
 
-  // Prepare one line buffer of width 'w'
-  // Max w here is 480 -> 960 bytes
   static uint8_t lineBuf[480 * 2];
   if (w > 480) {
     w = 480;
@@ -314,20 +316,16 @@ static const uint8_t font5x7[95][5] = {
     {0x10, 0x08, 0x08, 0x10, 0x08},
 };
 
-/*
- * Config for TFT text drawing (similar spirit to txt_cfg_t but color-aware)
- */
 typedef struct {
   uint16_t x;
   uint16_t y;
-  uint8_t scale;  // 1,2,3,...
-  uint8_t wrap;   // 0 = no wrap, 1 = wrap at right edge
-  uint16_t fg;    // foreground color (RGB565)
-  uint16_t bg;    // background color (RGB565)
-  uint8_t use_bg; // if non-zero, draw background pixels
+  uint8_t scale;
+  uint8_t wrap;
+  uint16_t fg;
+  uint16_t bg;
+  uint8_t use_bg;
 } TFT_TextCfg;
 
-/* Public helpers (you may want to declare these in bigdisplay.h) */
 void TFT_TextInit(TFT_TextCfg *t) {
   if (!t)
     return;
@@ -337,7 +335,7 @@ void TFT_TextInit(TFT_TextCfg *t) {
   t->wrap = 1;
   t->fg = COLOR_WHITE;
   t->bg = COLOR_BLACK;
-  t->use_bg = 0; // default: transparent background
+  t->use_bg = 0;
 }
 
 void TFT_TextSetCursor(TFT_TextCfg *t, uint16_t x, uint16_t y) {
@@ -370,7 +368,6 @@ void TFT_TextSetColors(TFT_TextCfg *t, uint16_t fg, uint16_t bg,
   t->use_bg = use_bg ? 1u : 0u;
 }
 
-/* Internal helper: draw a scaled block of one pixel */
 static void TFT_DrawPixelScaled(uint16_t x, uint16_t y, uint8_t s,
                                 uint16_t color) {
   for (uint8_t dy = 0; dy < s; ++dy) {
@@ -380,10 +377,6 @@ static void TFT_DrawPixelScaled(uint16_t x, uint16_t y, uint8_t s,
   }
 }
 
-/*
- * Draw a single character using the config.
- * Returns horizontal advance in pixels.
- */
 uint8_t TFT_TextDrawChar(TFT_TextCfg *t, char c) {
   if (!t)
     return 0;
@@ -392,7 +385,7 @@ uint8_t TFT_TextDrawChar(TFT_TextCfg *t, char c) {
     return 0;
   if (c == '\n') {
     t->x = 0;
-    t->y = (uint16_t)(t->y + (8u * t->scale)); // 7px font + 1px spacing
+    t->y = (uint16_t)(t->y + (8u * t->scale));
     return 0;
   }
 
@@ -402,10 +395,9 @@ uint8_t TFT_TextDrawChar(TFT_TextCfg *t, char c) {
 
   const uint8_t *glyph = font5x7[(uint8_t)c - 32u];
 
-  uint8_t char_w = (uint8_t)(6u * t->scale); // 5 columns + 1 spacing
-  uint8_t char_h = (uint8_t)(8u * t->scale); // 7 rows + 1 spacing
+  uint8_t char_w = (uint8_t)(6u * t->scale);
+  uint8_t char_h = (uint8_t)(8u * t->scale);
 
-  // Wrap if requested
   if (t->wrap && (t->x + char_w) > TFT_WIDTH) {
     t->x = 0;
     t->y = (uint16_t)(t->y + char_h);
@@ -415,7 +407,6 @@ uint8_t TFT_TextDrawChar(TFT_TextCfg *t, char c) {
     return 0;
   }
 
-  // Draw 5 columns of glyph
   for (uint8_t col = 0; col < 5u; ++col) {
     uint8_t bits = glyph[col];
     for (uint8_t row = 0; row < 7u; ++row) {
@@ -423,16 +414,13 @@ uint8_t TFT_TextDrawChar(TFT_TextCfg *t, char c) {
       uint16_t py = (uint16_t)(t->y + row * t->scale);
 
       if (bits & (1u << row)) {
-        // foreground pixel
         TFT_DrawPixelScaled(px, py, t->scale, t->fg);
       } else if (t->use_bg) {
-        // background pixel
         TFT_DrawPixelScaled(px, py, t->scale, t->bg);
       }
     }
   }
 
-  // One column spacing to the right
   if (t->use_bg) {
     for (uint8_t row = 0; row < 7u; ++row) {
       uint16_t px = (uint16_t)(t->x + 5u * t->scale);
@@ -445,10 +433,6 @@ uint8_t TFT_TextDrawChar(TFT_TextCfg *t, char c) {
   return char_w;
 }
 
-/*
- * Draw a zero-terminated ASCII string using the config.
- * Returns total horizontal pixels advanced.
- */
 uint16_t TFT_TextDrawString(TFT_TextCfg *t, const char *s) {
   if (!t || !s)
     return 0;
@@ -459,15 +443,11 @@ uint16_t TFT_TextDrawString(TFT_TextCfg *t, const char *s) {
   return px;
 }
 
-/*
- * printf-style helper that draws formatted text using the config.
- * Returns the vsnprintf result (number of chars that would have been written).
- */
 int TFT_TextPrintf(TFT_TextCfg *t, const char *fmt, ...) {
   if (!t || !fmt)
     return 0;
 
-  char buf[128]; // keep stack small; you can call repeatedly for long strings
+  char buf[128];
   va_list ap;
   va_start(ap, fmt);
   int n = vsnprintf(buf, sizeof(buf), fmt, ap);
@@ -481,18 +461,13 @@ int TFT_TextPrintf(TFT_TextCfg *t, const char *fmt, ...) {
   return n;
 }
 
-/*
- * Convenience one-shot helpers if you don't want to manage a config:
- * These simply create a local config and draw at (x,y).
- */
-
 uint16_t TFT_DrawStringAt(uint16_t x, uint16_t y, const char *s, uint16_t color,
                           uint8_t scale) {
   TFT_TextCfg cfg;
   TFT_TextInit(&cfg);
   TFT_TextSetCursor(&cfg, x, y);
   TFT_TextSetScale(&cfg, scale);
-  TFT_TextSetWrap(&cfg, 0); // no wrap by default
+  TFT_TextSetWrap(&cfg, 0);
   TFT_TextSetColors(&cfg, color, COLOR_BLACK, 0);
   return TFT_TextDrawString(&cfg, s);
 }
@@ -503,7 +478,7 @@ int TFT_PrintfAt(uint16_t x, uint16_t y, uint16_t color, uint8_t scale,
   TFT_TextInit(&cfg);
   TFT_TextSetCursor(&cfg, x, y);
   TFT_TextSetScale(&cfg, scale);
-  TFT_TextSetWrap(&cfg, 0); // no wrap by default
+  TFT_TextSetWrap(&cfg, 0);
   TFT_TextSetColors(&cfg, color, COLOR_BLACK, 0);
 
   char buf[128];
@@ -518,4 +493,115 @@ int TFT_PrintfAt(uint16_t x, uint16_t y, uint16_t color, uint8_t scale,
 
   TFT_TextDrawString(&cfg, buf);
   return n;
+}
+
+void TFT_DrawRGB888Buffer(uint16_t x, uint16_t y, uint16_t w, uint16_t h,
+                          const uint8_t *buffer) {
+  if (!buffer)
+    return;
+
+  // Clip if starting outside display
+  if (x >= TFT_WIDTH || y >= TFT_HEIGHT)
+    return;
+
+  // Clip width/height if extending beyond screen
+  if (x + w > TFT_WIDTH)
+    w = TFT_WIDTH - x;
+  if (y + h > TFT_HEIGHT)
+    h = TFT_HEIGHT - y;
+
+  // Prepare TFT for pixel write
+  TFT_Select();
+
+  // Set drawing window
+  uint8_t buf[4];
+
+  // Column
+  tft_writeCommand(0x2A);
+  buf[0] = x >> 8;
+  buf[1] = x & 0xFF;
+  buf[2] = (x + w - 1) >> 8;
+  buf[3] = (x + w - 1) & 0xFF;
+  tft_writeData(buf, 4);
+
+  // Row
+  tft_writeCommand(0x2B);
+  buf[0] = y >> 8;
+  buf[1] = y & 0xFF;
+  buf[2] = (y + h - 1) >> 8;
+  buf[3] = (y + h - 1) & 0xFF;
+  tft_writeData(buf, 4);
+
+  // Begin memory write
+  tft_writeCommand(0x2C);
+
+  // Convert and send row by row: RGB888 → RGB565
+  for (uint16_t row = 0; row < h; row++) {
+    const uint8_t *src = buffer + (row * w * 3);
+
+    // Send each pixel
+    for (uint16_t col = 0; col < w; col++) {
+      uint8_t r = *src++;
+      uint8_t g = *src++;
+      uint8_t b = *src++;
+
+      uint16_t rgb565 = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+
+      uint8_t out[2] = {rgb565 >> 8, rgb565 & 0xFF};
+      tft_writeData(out, 2);
+    }
+  }
+
+  TFT_Unselect();
+}
+
+void TFT_DrawSmiley(uint16_t x, uint16_t y, uint16_t radius, uint16_t fg,
+                    uint16_t bg, uint8_t happy) {
+  // --- Draw face fill (background color) ---
+  for (int16_t dy = -(int16_t)radius; dy <= (int16_t)radius; dy++) {
+    for (int16_t dx = -(int16_t)radius; dx <= (int16_t)radius; dx++) {
+      if (dx * dx + dy * dy <= radius * radius) {
+        TFT_DrawPixel(x + dx, y + dy, bg);
+      }
+    }
+  }
+
+  // --- Eyes (foreground color) ---
+  uint16_t eyeOffsetX = radius / 2;
+  uint16_t eyeOffsetY = radius / 2;
+
+  for (int16_t dy = -2; dy <= 2; dy++) {
+    for (int16_t dx = -2; dx <= 2; dx++) {
+      TFT_DrawPixel(x - eyeOffsetX + dx, y - eyeOffsetY + dy, fg);
+      TFT_DrawPixel(x + eyeOffsetX + dx, y - eyeOffsetY + dy, fg);
+    }
+  }
+
+  // --- Mouth (arc) in foreground color ---
+  int16_t mouthRadius = radius * 2 / 3;
+  int16_t mouthYOffset = radius / 4;
+
+  for (int16_t dx = -mouthRadius; dx <= mouthRadius; dx++) {
+    float t = (float)dx / (float)mouthRadius;
+    float arc = sqrtf(1.0f - t * t);
+
+    int16_t dy = (int16_t)(arc * (mouthRadius / 2));
+    if (!happy)
+      dy = -dy; // invert for frown
+
+    TFT_DrawPixel(x + dx, y + mouthYOffset + dy, fg);
+    TFT_DrawPixel(x + dx, y + mouthYOffset + dy + 1, fg);
+  }
+
+  // --- Outer Circle (foreground outline) ---
+  int16_t r = radius;
+  for (int16_t dy = -r; dy <= r; dy++) {
+    for (int16_t dx = -r; dx <= r; dx++) {
+      int32_t d = dx * dx + dy * dy;
+      // Perimeter band for outline thickness of ~1 pixel
+      if (d >= (r * r - r) && d <= (r * r + r)) {
+        TFT_DrawPixel(x + dx, y + dy, fg);
+      }
+    }
+  }
 }

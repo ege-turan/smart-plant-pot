@@ -51,6 +51,10 @@ void MX_I2C4_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
+void I2C2_write(uint16_t device_addr, uint8_t write_byte);
+
+uint16_t I2C2_read(uint16_t device_addr);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
