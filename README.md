@@ -17,6 +17,7 @@ I2C:
 GPIO:
 - WiFi: two GPIO pins (PG0 RST, PG1 BUSY)
 - Valve: one GPIO pin gated by NMOS (PF3 OUTPUT)
+- Display (touch): PF7 RST, PF9 INT
 
 ## Display pins
 VCC

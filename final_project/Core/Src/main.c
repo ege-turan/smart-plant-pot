@@ -36,8 +36,10 @@
 #include <stdio.h>
 #include <string.h>
 
+// display
 #include "bigdisplay.h"
-
+// touch
+#include "touch.h"
 // temp and humidity
 #include "si7021.h"
 // soil
@@ -65,6 +67,12 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+
+// idle = 1: idle and free to receive fast interrupts
+int idle = 1;
+
+// Tamagotchi feeling: 1 happy, 0 sad
+int tamagotchi_feeling = 1;
 
 /* USER CODE END PV */
 
@@ -136,22 +144,17 @@ int main(void) {
   printf("Hello from Nucleo-L4R5ZI-P!\r\n");
 
   TFT_Init();
-  int m = 160;
-  TFT_FillScreen(COLOR_NAVY);
-  HAL_Delay(1000);
-  TFT_FillRect(0, 0, m, m, COLOR_RED);
-  TFT_FillRect(m, 0, m, m, COLOR_GREEN);
-  TFT_FillRect(0, m, m, m, COLOR_BLUE);
-  TFT_FillRect(m, m, m, m, COLOR_YELLOW);
-  TFT_FillRect(0, 2 * m, m, m, COLOR_CYAN);
-  TFT_FillRect(m, 2 * m, m, m, COLOR_ORANGE);
-  HAL_Delay(1000);
-  TFT_PrintfAt(10, 10, COLOR_WHITE, 2, "Hello everyone!");
 
   if (HAL_I2C_IsDeviceReady(&hi2c2, SOIL_ADDR, 3, 100) == HAL_OK)
     printf("Soil sensor detected\r\n");
   else
     printf("Soil sensor NOT detected\r\n");
+
+  if (TOUCH_Init() != HAL_OK) {
+    printf("Touch controller init FAILED\r\n");
+  } else {
+    printf("Touch controller init OK\r\n");
+  }
 
   uint16_t read_value = 0;
   // initialize
@@ -162,6 +165,8 @@ int main(void) {
   uint16_t cap_soil = 0;
   float temp_soil = 0.0f;
   uint16_t light_value = 0;
+
+  TFT_FillScreen(COLOR_WHITE);
 
   /* USER CODE END 2 */
 
@@ -179,6 +184,8 @@ int main(void) {
     int hum_air_int = (int)hum_air;
     int temp_air_int = (int)temp_air;
     int temp_soil_int = (int)temp_soil;
+    int avg_temp = (temp_air_int + temp_soil_int) / 2;
+    int avg_temp_f = (temp_air_int + temp_soil_int) / 2 * 9 / 5 + 32;
 
     light_value = bh1750_read(BH1750_ADDR);
 
@@ -188,15 +195,59 @@ int main(void) {
     printf("SoilCap: %u  \r\n", cap_soil);
     printf("SoilTemp: %d C\r\n", temp_soil_int);
     printf("Light: %u  \r\n", light_value);
-    TFT_FillScreen(COLOR_BLACK);
 
-    TFT_PrintfAt(10, 50, COLOR_WHITE, 2, "AirRH: %d \r\n", hum_air_int);
-    TFT_PrintfAt(10, 70, COLOR_WHITE, 2, "AirTemp: %d C \r\n", temp_air_int);
-    TFT_PrintfAt(10, 90, COLOR_WHITE, 2, "SoilCap: %u  \r\n", cap_soil);
-    TFT_PrintfAt(10, 110, COLOR_WHITE, 2, "SoilTemp: %d C\r\n", temp_soil_int);
-    TFT_PrintfAt(10, 130, COLOR_WHITE, 2, "Light: %u  \r\n", light_value);
+    int moisture_good = 1;
+    if (cap_soil < 800) {
+      moisture_good = 0;
+    }
+
+    int light_good = 1;
+    if (light_value < 1000) {
+      light_good = 0;
+    }
+
+    TFT_PrintfAt(50, 10, COLOR_BLACK, 3, "TAMAGOTCHI FLOWER POT");
+
+    TFT_FillRect(120, 240, 60, 20, COLOR_WHITE);
+    if (moisture_good) {
+      TFT_PrintfAt(10, 240, COLOR_BLACK, 2, "Moisture: Hydrated  \r\n");
+    } else {
+      TFT_PrintfAt(10, 240, COLOR_BLACK, 2, "Moisture: Dry  \r\n");
+    }
+
+    TFT_FillRect(90, 260, 60, 20, COLOR_WHITE);
+    if (light_good) {
+      TFT_PrintfAt(10, 260, COLOR_BLACK, 2, "Light: Bright  \r\n");
+    } else {
+      TFT_PrintfAt(10, 260, COLOR_BLACK, 2, "Light: Dim  \r\n");
+    }
+
+    TFT_FillRect(120, 280, 60, 20, COLOR_WHITE);
+    TFT_PrintfAt(10, 280, COLOR_BLACK, 2, "Humidity: %d%% \r\n", hum_air_int);
+
+    TFT_FillRect(10, 300, 150, 20, COLOR_WHITE);
+    TFT_PrintfAt(10, 300, COLOR_BLACK, 2, "%d C %d F \r\n", avg_temp,
+                 avg_temp_f);
+
+    if (tamagotchi_feeling == 1) {
+      TFT_PrintfAt(10, 150, COLOR_BLACK, 2, "Plant is happy");
+      // TFT_DrawSmiley(320, 150, 100, COLOR_BLACK, COLOR_WHITE, 1);
+    } else {
+      TFT_PrintfAt(10, 150, COLOR_BLACK, 2, "Plant is sad");
+      // TFT_DrawSmiley(320, 150, 100, COLOR_BLACK, COLOR_WHITE, 1);
+    }
+
+    // if (TOUCH_HasNewData()) {
+    //   TOUCH_TouchPoint tp;
+    //   if (TOUCH_ReadTouch(&tp) == HAL_OK && tp.touched) {
+    //     printf("Touch: x=%u y=%u\r\n", tp.x, tp.y);
+
+    //     TFT_DrawPixel(tp.x, tp.y, COLOR_WHITE);
+    //   }
+    // }
+
     // read and print every second
-    HAL_Delay(1000);
+    // HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }
@@ -284,6 +335,23 @@ void PeriphCommonClock_Config(void) {
 }
 
 /* USER CODE BEGIN 4 */
+
+// touch callback
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+
+  if (idle == 0) {
+    return;
+  }
+  if (GPIO_Pin == TOUCH_INT_Pin) {
+    idle = 0;
+    TOUCH_TouchPoint tp;
+    if (TOUCH_ReadTouch(&tp) == HAL_OK && tp.touched) {
+      printf("Touch: x=%u y=%u\r\n", tp.x, tp.y);
+      TFT_DrawPixel(tp.x, tp.y, COLOR_WHITE);
+    }
+    idle = 1;
+  }
+}
 
 /* USER CODE END 4 */
 

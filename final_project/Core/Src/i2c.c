@@ -398,7 +398,7 @@ void I2C2_write(uint16_t device_addr, uint8_t write_byte) {
 uint16_t I2C2_read(uint16_t device_addr) {
   uint8_t read_bytes[2] = {0, 0};
   HAL_I2C_Master_Receive(&hi2c2, device_addr, read_bytes, 2, 1000);
-  printf("\rread_bytes: %d, %d\n\r", read_bytes[0], read_bytes[1]);
+  // printf("\rread_bytes: %d, %d\n\r", read_bytes[0], read_bytes[1]);
   volatile uint16_t read_concat = (read_bytes[0] << 8) | (read_bytes[1] << 0);
   return read_concat;
 }

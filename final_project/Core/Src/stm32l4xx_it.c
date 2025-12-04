@@ -22,6 +22,8 @@
 #include "stm32l4xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "main.h"
+#include "touch.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -199,5 +201,5 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /* USER CODE BEGIN 1 */
-
+void EXTI9_5_IRQHandler(void) { HAL_GPIO_EXTI_IRQHandler(TOUCH_INT_Pin); }
 /* USER CODE END 1 */
