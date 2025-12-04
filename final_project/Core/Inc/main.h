@@ -63,10 +63,6 @@ void Error_Handler(void);
 #define Valve_GPIO_Port GPIOF
 #define Temp_Pin GPIO_PIN_5
 #define Temp_GPIO_Port GPIOF
-#define Wifi_RST_Pin GPIO_PIN_0
-#define Wifi_RST_GPIO_Port GPIOG
-#define Wifi_BUSY_Pin GPIO_PIN_1
-#define Wifi_BUSY_GPIO_Port GPIOG
 
 /* USER CODE BEGIN Private defines */
 

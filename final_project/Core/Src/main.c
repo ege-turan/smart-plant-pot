@@ -18,7 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
 #include "adc.h"
 #include "gpio.h"
 #include "i2c.h"
@@ -26,6 +25,7 @@
 #include "tim.h"
 #include "usart.h"
 #include "usb_otg.h"
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -174,6 +174,7 @@ int main(void) {
   /* USER CODE BEGIN WHILE */
   while (1) {
     /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
     hum_air = si7021_read_humidity();
     temp_air = si7021_read_temperature();
@@ -367,7 +368,6 @@ void Error_Handler(void) {
   }
   /* USER CODE END Error_Handler_Debug */
 }
-
 #ifdef USE_FULL_ASSERT
 /**
  * @brief  Reports the name of the source file and the source line number
