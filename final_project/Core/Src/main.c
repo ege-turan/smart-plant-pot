@@ -26,7 +26,6 @@
 #include "usart.h"
 #include "usb_otg.h"
 
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -46,6 +45,8 @@
 #include "soil.h"
 // light sensor
 #include "lightsensor.h"
+// pump
+#include "pump.h"
 
 /* USER CODE END Includes */
 
@@ -81,6 +82,8 @@ void SystemClock_Config(void);
 void PeriphCommonClock_Config(void);
 /* USER CODE BEGIN PFP */
 
+void draw_screen(void);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -91,6 +94,25 @@ int __io_putchar(int ch) {
   return ch;
 }
 
+float hum_air = 0.0f;
+float temp_air = 0.0f;
+uint16_t cap_soil = 0;
+float temp_soil = 0.0f;
+uint16_t light_value = 0;
+int hum_air_int;
+int temp_air_int;
+int temp_soil_int;
+int avg_temp;
+int avg_temp_f;
+
+int water_interval_days = 7;
+
+int plus_button_x = 300;
+int plus_button_y = 200;
+int minus_button_x = 300;
+int minus_button_y = 270;
+int button_width = 50;
+int button_height = 50;
 /* USER CODE END 0 */
 
 /**
@@ -142,7 +164,10 @@ int main(void) {
   /* USER CODE BEGIN 2 */
 
   printf("Hello from Nucleo-L4R5ZI-P!\r\n");
+  // pump
+  pump_init();
 
+  // screen
   TFT_Init();
 
   if (HAL_I2C_IsDeviceReady(&hi2c2, SOIL_ADDR, 3, 100) == HAL_OK)
@@ -160,11 +185,11 @@ int main(void) {
   // initialize
   bh1750_init(BH1750_ADDR);
 
-  float hum_air = 0.0f;
-  float temp_air = 0.0f;
-  uint16_t cap_soil = 0;
-  float temp_soil = 0.0f;
-  uint16_t light_value = 0;
+  hum_air = 0.0f;
+  temp_air = 0.0f;
+  cap_soil = 0;
+  temp_soil = 0.0f;
+  light_value = 0;
 
   TFT_FillScreen(COLOR_WHITE);
 
@@ -182,11 +207,11 @@ int main(void) {
     // Read soil sensor
     cap_soil = soil_read_capacitance();
     temp_soil = soil_read_temperature();
-    int hum_air_int = (int)hum_air;
-    int temp_air_int = (int)temp_air;
-    int temp_soil_int = (int)temp_soil;
-    int avg_temp = (temp_air_int + temp_soil_int) / 2;
-    int avg_temp_f = (temp_air_int + temp_soil_int) / 2 * 9 / 5 + 32;
+    hum_air_int = (int)hum_air;
+    temp_air_int = (int)temp_air;
+    temp_soil_int = (int)temp_soil;
+    avg_temp = (temp_air_int + temp_soil_int) / 2;
+    avg_temp_f = (temp_air_int + temp_soil_int) / 2 * 9 / 5 + 32;
 
     light_value = bh1750_read(BH1750_ADDR);
 
@@ -209,14 +234,14 @@ int main(void) {
 
     TFT_PrintfAt(50, 10, COLOR_BLACK, 3, "TAMAGOTCHI FLOWER POT");
 
-    TFT_FillRect(120, 240, 60, 20, COLOR_WHITE);
+    TFT_FillRect(120, 240, 150, 20, COLOR_WHITE);
     if (moisture_good) {
       TFT_PrintfAt(10, 240, COLOR_BLACK, 2, "Moisture: Hydrated  \r\n");
     } else {
       TFT_PrintfAt(10, 240, COLOR_BLACK, 2, "Moisture: Dry  \r\n");
     }
 
-    TFT_FillRect(90, 260, 60, 20, COLOR_WHITE);
+    TFT_FillRect(90, 260, 100, 20, COLOR_WHITE);
     if (light_good) {
       TFT_PrintfAt(10, 260, COLOR_BLACK, 2, "Light: Bright  \r\n");
     } else {
@@ -230,11 +255,26 @@ int main(void) {
     TFT_PrintfAt(10, 300, COLOR_BLACK, 2, "%d C %d F \r\n", avg_temp,
                  avg_temp_f);
 
+    // Setting how often to water the plant
+    TFT_FillRect(300, 250, 150, 20, COLOR_WHITE);
+    TFT_PrintfAt(300, 250, COLOR_BLACK, 2, "%d days", water_interval_days);
+
+    TFT_FillRect(plus_button_x, plus_button_y, button_width, button_height,
+                 COLOR_GREEN);
+    TFT_FillRect(minus_button_x, minus_button_y, button_width, button_height,
+                 COLOR_RED);
+
+    tamagotchi_feeling = 0;
+    if (light_good) {
+      tamagotchi_feeling = 1;
+    }
+
+    TFT_FillRect(10, 150, 300, 40, COLOR_WHITE);
     if (tamagotchi_feeling == 1) {
-      TFT_PrintfAt(10, 150, COLOR_BLACK, 2, "Plant is happy");
+      TFT_PrintfAt(10, 150, COLOR_BLACK, 3, "Plant is happy :)");
       // TFT_DrawSmiley(320, 150, 100, COLOR_BLACK, COLOR_WHITE, 1);
     } else {
-      TFT_PrintfAt(10, 150, COLOR_BLACK, 2, "Plant is sad");
+      TFT_PrintfAt(10, 150, COLOR_BLACK, 3, "Plant is sad :(");
       // TFT_DrawSmiley(320, 150, 100, COLOR_BLACK, COLOR_WHITE, 1);
     }
 
@@ -246,9 +286,6 @@ int main(void) {
     //     TFT_DrawPixel(tp.x, tp.y, COLOR_WHITE);
     //   }
     // }
-
-    // read and print every second
-    // HAL_Delay(1000);
   }
   /* USER CODE END 3 */
 }
@@ -348,7 +385,26 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
     TOUCH_TouchPoint tp;
     if (TOUCH_ReadTouch(&tp) == HAL_OK && tp.touched) {
       printf("Touch: x=%u y=%u\r\n", tp.x, tp.y);
-      TFT_DrawPixel(tp.x, tp.y, COLOR_WHITE);
+
+      // Was first button pressed?
+      if (tp.x >= plus_button_x && tp.x <= plus_button_x + button_width &&
+          tp.y >= plus_button_y && tp.y <= plus_button_y + button_height) {
+        printf("Plus button pressed\r\n");
+        water_interval_days++;
+        HAL_Delay(200);
+      }
+
+      // Was second button pressed?
+      else if (tp.x >= minus_button_x &&
+               tp.x <= minus_button_x + button_width &&
+               tp.y >= minus_button_y &&
+               tp.y <= minus_button_y + button_height) {
+        printf("Minus button pressed\r\n");
+        water_interval_days--;
+        HAL_Delay(200);
+      }
+
+      // TFT_DrawPixel(tp.x, tp.y, COLOR_WHITE);
     }
     idle = 1;
   }
