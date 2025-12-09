@@ -25,10 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "functions.h"
-#include <string.h>
-#include <stdint.h>
-#include <stdio.h>
+#include "camera.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -37,7 +34,6 @@
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
 
 /* USER CODE END PD */
 
@@ -60,6 +56,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+/* USER CODE BEGIN PD */
 int __io_putchar(int ch) {
 	HAL_UART_Transmit(&hlpuart1, (uint8_t *)&ch, 1, 10);
 	return ch;
@@ -74,8 +71,6 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
-
 
   /* USER CODE END 1 */
 
@@ -102,78 +97,46 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
+  ArduCam_Init_YCbCr();
 
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
+  // DEBUGGING
+  uint8_t dummy[24] = {0};
 
-  // Configure the pin (e.g., PA5)
-  GPIO_InitStruct.Pin = GPIO_PIN_4;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  printf("\r\nbeginning\r\n");
-  uint8_t vid,pid;
-  uint8_t temp=0;
-
-  printf("Testing I2C ACK...\r\n");
-  uint8_t id_high, id_low;
-
-  HAL_I2C_Mem_Read(&hi2c4, OV5642_I2C_ADDR, 0x300A, I2C_MEMADD_SIZE_16BIT, &id_high, 1, 1000);
-  HAL_I2C_Mem_Read(&hi2c4, OV5642_I2C_ADDR, 0x300B, I2C_MEMADD_SIZE_16BIT, &id_low, 1, 1000);
-
-  printf("Chip ID: %02X %02X\r\n", id_high, id_low);
-
-
-  while(1) {
-  		bus_write(ARDUCHIP_TEST1, 0x55);
-  		temp = bus_read(ARDUCHIP_TEST1);
-  		if(temp==0x55)
-  		{
-  			printf("\r\nSPI is ready\r\n");
-  			break;
-  		}
-  		else
-  		{
-  			printf("\r\nSPI communication error\r\n");
-  		}
-  		HAL_Delay(1000);
-  	}
-  while(1) {
-
-		rdSensorReg16_8(OV5642_CHIPID_HIGH, &vid);
-		rdSensorReg16_8(OV5642_CHIPID_LOW, &pid);
-		if ((vid == 0x56) && (pid == 0x42))
-		{
-			printf("\r\nACK CMD OV5642 detected.\r\n");
-			break;
-		}
-		else
-		{
-			printf("\r\nACK CMD Can't find OV5642 module!\r\n");
-		}
-		HAL_Delay(1000);
-  }
-  ArduCam_Init();
-  OV5642_set_JPEG_size(OV5642_640x480);
-
-  // was used to debug
-  uint8_t fmt;
-  rdSensorReg16_8(0x4300, &fmt);
-  printf("Format: 0x%02X\r\n", fmt);
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while (1){
-	  //SingleCapTransfer();
-	  //printf("\r\nlife\r\n"); // toggle on for debugging
-	  HAL_Delay(10000);
-	}
+  while (1)
+  {
+	  SingleCapTransfer_YCbCr(0, 0, camera_buf); // terminal_debug, python_debug, buffer
+
+	  // DEBUGGING // do not have if set python_debug = 1
+	  uint8_t start_flag[] = "START\n";
+	  HAL_UART_Transmit(&hlpuart1, start_flag, sizeof(start_flag) - 1, HAL_MAX_DELAY);
+
+	  uint32_t remaining = rgb888_data_length;
+	  uint8_t *ptr = camera_buf;
+
+	  while (remaining > 0) {
+		  uint16_t chunk = (remaining > 65535) ? 65535 : remaining;
+
+		  HAL_UART_Transmit(&hlpuart1, ptr, chunk, HAL_MAX_DELAY);
+
+		  ptr += chunk;
+		  remaining -= chunk;
+	  }
+
+	  uint8_t end_flag[] = "END\n";
+	  HAL_UART_Transmit(&hlpuart1, end_flag, sizeof(end_flag) - 1, HAL_MAX_DELAY); // avoid null terminator
+
+	  HAL_UART_Transmit(&hlpuart1, dummy, 24, HAL_MAX_DELAY);
+
+	  HAL_Delay(5000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+  }
   /* USER CODE END 3 */
 }
 
