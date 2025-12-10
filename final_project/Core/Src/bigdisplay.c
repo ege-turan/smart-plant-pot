@@ -66,7 +66,7 @@ static void tft_writeData8(uint8_t data) {
 static void TFT_SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1,
                                  uint16_t y1) {
   uint8_t buf[4];
-  TFT_Select();
+  // TFT_Select();
 
   // Column address set
   tft_writeCommand(0x2A);
@@ -84,7 +84,7 @@ static void TFT_SetAddressWindow(uint16_t x0, uint16_t y0, uint16_t x1,
   buf[3] = y1 & 0xFF;
   tft_writeData(buf, 4);
 
-  TFT_Unselect();
+  // TFT_Unselect();
 }
 
 static void BigDisplay_GPIO_Init(void) {
@@ -174,23 +174,7 @@ void TFT_DrawPixel(uint16_t x, uint16_t y, uint16_t color) {
 
   TFT_Select();
 
-  // Window is 1x1
-  // Column
-  tft_writeCommand(0x2A);
-  uint8_t buf[4];
-  buf[0] = x >> 8;
-  buf[1] = x & 0xFF;
-  buf[2] = x >> 8;
-  buf[3] = x & 0xFF;
-  tft_writeData(buf, 4);
-
-  // Page
-  tft_writeCommand(0x2B);
-  buf[0] = y >> 8;
-  buf[1] = y & 0xFF;
-  buf[2] = y >> 8;
-  buf[3] = y & 0xFF;
-  tft_writeData(buf, 4);
+  TFT_SetAddressWindow(x, y, x + 1, y + 1);
 
   // Memory write
   tft_writeCommand(0x2C);
@@ -206,11 +190,9 @@ void TFT_FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h,
     return;
   }
   if ((x + w) > TFT_WIDTH) {
-    uint16_t old_w = w;
     w = TFT_WIDTH - x;
   }
   if (y + h > TFT_HEIGHT) {
-    uint16_t old_h = h;
     h = TFT_HEIGHT - y;
   }
 
@@ -230,23 +212,7 @@ void TFT_FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h,
 
   TFT_Select();
 
-  // Set window
-  uint8_t buf[4];
-
-  tft_writeCommand(0x2A); // Column
-  buf[0] = x >> 8;
-  buf[1] = x & 0xFF;
-  buf[2] = (x + w - 1) >> 8;
-  buf[3] = (x + w - 1) & 0xFF;
-  tft_writeData(buf, 4);
-
-  tft_writeCommand(0x2B); // Page
-  buf[0] = y >> 8;
-  buf[1] = y & 0xFF;
-  buf[2] = (y + h - 1) >> 8;
-  buf[3] = (y + h - 1) & 0xFF;
-
-  tft_writeData(buf, 4);
+  TFT_SetAddressWindow(x, y, x + w - 1, y + h - 1);
 
   // Memory write
   tft_writeCommand(0x2C);
@@ -259,12 +225,6 @@ void TFT_FillRect(uint16_t x, uint16_t y, uint16_t w, uint16_t h,
   TFT_Unselect();
 }
 
-/*=====================================================================
- * 5x7 TEXT RENDERING (PORTED FROM SSD1306 VERSION FOR TFT)
- *====================================================================*/
-
-// 5x7 font, each char = 5 bytes, LSB is top pixel. One blank column we add as
-// spacing in code. Range: ASCII 0x20..0x7E (95 chars)
 static const uint8_t font5x7[95][5] = {
     {0x00, 0x00, 0x00, 0x00, 0x00}, {0x00, 0x00, 0x5F, 0x00, 0x00},
     {0x00, 0x07, 0x00, 0x07, 0x00}, {0x14, 0x7F, 0x14, 0x7F, 0x14},
@@ -496,112 +456,61 @@ int TFT_PrintfAt(uint16_t x, uint16_t y, uint16_t color, uint8_t scale,
 }
 
 void TFT_DrawRGB888Buffer(uint16_t x, uint16_t y, uint16_t w, uint16_t h,
-                          const uint8_t *buffer) {
+                          const uint8_t *buffer, uint8_t scale) {
   if (!buffer)
     return;
 
-  // Clip if starting outside display
+  // Treat scale <= 1 as no scaling
+  if (scale == 0)
+    scale = 1;
+
+  // If starting outside display, nothing to do
   if (x >= TFT_WIDTH || y >= TFT_HEIGHT)
     return;
 
-  // Clip width/height if extending beyond screen
-  if (x + w > TFT_WIDTH)
-    w = TFT_WIDTH - x;
-  if (y + h > TFT_HEIGHT)
-    h = TFT_HEIGHT - y;
+  // Source (original) dimensions
+  uint16_t srcW = w;
+  uint16_t srcH = h;
 
-  // Prepare TFT for pixel write
+  // Destination (scaled) dimensions, ceil(src / scale)
+  uint16_t destW = (srcW + scale - 1) / scale;
+  uint16_t destH = (srcH + scale - 1) / scale;
+
+  // Clip scaled width/height to screen bounds
+  if (x + destW > TFT_WIDTH)
+    destW = TFT_WIDTH - x;
+  if (y + destH > TFT_HEIGHT)
+    destH = TFT_HEIGHT - y;
+
+  if (destW == 0 || destH == 0)
+    return;
+
   TFT_Select();
 
-  // Set drawing window
-  uint8_t buf[4];
-
-  // Column
-  tft_writeCommand(0x2A);
-  buf[0] = x >> 8;
-  buf[1] = x & 0xFF;
-  buf[2] = (x + w - 1) >> 8;
-  buf[3] = (x + w - 1) & 0xFF;
-  tft_writeData(buf, 4);
-
-  // Row
-  tft_writeCommand(0x2B);
-  buf[0] = y >> 8;
-  buf[1] = y & 0xFF;
-  buf[2] = (y + h - 1) >> 8;
-  buf[3] = (y + h - 1) & 0xFF;
-  tft_writeData(buf, 4);
+  TFT_SetAddressWindow(x, y, x + destW - 1, y + destH - 1);
 
   // Begin memory write
   tft_writeCommand(0x2C);
 
-  // Convert and send row by row: RGB888 → RGB565
-  for (uint16_t row = 0; row < h; row++) {
-    const uint8_t *src = buffer + (row * w * 3);
+  // Nearest-neighbor downscale: sample every "scale" pixels
+  for (uint16_t row = 0; row < destH; row++) {
+    uint16_t srcRow = row * scale;
+    const uint8_t *rowPtr = buffer + (srcRow * srcW * 3);
 
-    // Send each pixel
-    for (uint16_t col = 0; col < w; col++) {
-      uint8_t r = *src++;
-      uint8_t g = *src++;
-      uint8_t b = *src++;
+    for (uint16_t col = 0; col < destW; col++) {
+      uint16_t srcCol = col * scale;
+      const uint8_t *src = rowPtr + srcCol * 3;
+
+      uint8_t r = src[0];
+      uint8_t g = src[1];
+      uint8_t b = src[2];
 
       uint16_t rgb565 = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
 
-      uint8_t out[2] = {rgb565 >> 8, rgb565 & 0xFF};
+      uint8_t out[2] = {(uint8_t)(rgb565 >> 8), (uint8_t)(rgb565 & 0xFF)};
       tft_writeData(out, 2);
     }
   }
 
   TFT_Unselect();
-}
-
-void TFT_DrawSmiley(uint16_t x, uint16_t y, uint16_t radius, uint16_t fg,
-                    uint16_t bg, uint8_t happy) {
-  // --- Draw face fill (background color) ---
-  for (int16_t dy = -(int16_t)radius; dy <= (int16_t)radius; dy++) {
-    for (int16_t dx = -(int16_t)radius; dx <= (int16_t)radius; dx++) {
-      if (dx * dx + dy * dy <= radius * radius) {
-        TFT_DrawPixel(x + dx, y + dy, bg);
-      }
-    }
-  }
-
-  // --- Eyes (foreground color) ---
-  uint16_t eyeOffsetX = radius / 2;
-  uint16_t eyeOffsetY = radius / 2;
-
-  for (int16_t dy = -2; dy <= 2; dy++) {
-    for (int16_t dx = -2; dx <= 2; dx++) {
-      TFT_DrawPixel(x - eyeOffsetX + dx, y - eyeOffsetY + dy, fg);
-      TFT_DrawPixel(x + eyeOffsetX + dx, y - eyeOffsetY + dy, fg);
-    }
-  }
-
-  // --- Mouth (arc) in foreground color ---
-  int16_t mouthRadius = radius * 2 / 3;
-  int16_t mouthYOffset = radius / 4;
-
-  for (int16_t dx = -mouthRadius; dx <= mouthRadius; dx++) {
-    float t = (float)dx / (float)mouthRadius;
-    float arc = sqrtf(1.0f - t * t);
-
-    int16_t dy = (int16_t)(arc * (mouthRadius / 2));
-    if (!happy)
-      dy = -dy; // invert for frown
-
-    TFT_DrawPixel(x + dx, y + mouthYOffset + dy, fg);
-    TFT_DrawPixel(x + dx, y + mouthYOffset + dy + 1, fg);
-  }
-
-  // --- Outer Circle (foreground outline) ---
-  int16_t r = radius;
-  for (int16_t dy = -r; dy <= r; dy++) {
-    for (int16_t dx = -r; dx <= r; dx++) {
-      int32_t d = dx * dx + dy * dy;
-      // Perimeter band for outline thickness of ~1 pixel
-      if (d >= (r * r - r) && d <= (r * r + r)) {
-        TFT_DrawPixel(x + dx, y + dy, fg);
-      }
-    }
-  }
 }

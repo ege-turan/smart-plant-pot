@@ -47,6 +47,8 @@
 #include "lightsensor.h"
 // pump
 #include "pump.h"
+// camera
+#include "camera.h"
 
 /* USER CODE END Includes */
 
@@ -106,13 +108,34 @@ int avg_temp;
 int avg_temp_f;
 
 int water_interval_days = 7;
+int wet_threshold = 800;
+int light_threshold = 1000;
 
-int plus_button_x = 300;
-int plus_button_y = 200;
-int minus_button_x = 300;
-int minus_button_y = 270;
-int button_width = 50;
-int button_height = 50;
+// Button dimensions
+int button_width = 40;
+int button_height = 30;
+
+// Water interval buttons (horizontal layout, positioned to right of camera)
+int water_interval_minus_x = 290;
+int water_interval_minus_y = 100;
+int water_interval_plus_x = 430;
+int water_interval_plus_y = 100;
+
+// Wet threshold buttons (horizontal layout)
+int wet_threshold_minus_x = 290;
+int wet_threshold_minus_y = 140;
+int wet_threshold_plus_x = 430;
+int wet_threshold_plus_y = 140;
+
+// Light threshold buttons (horizontal layout)
+int light_threshold_minus_x = 290;
+int light_threshold_minus_y = 180;
+int light_threshold_plus_x = 430;
+int light_threshold_plus_y = 180;
+
+// Water now button
+int water_now_x = 290;
+int water_now_y = 220;
 /* USER CODE END 0 */
 
 /**
@@ -163,6 +186,8 @@ int main(void) {
   MX_USB_OTG_FS_USB_Init();
   /* USER CODE BEGIN 2 */
 
+  ArduCam_Init_YCbCr();
+
   printf("Hello from Nucleo-L4R5ZI-P!\r\n");
   // pump
   pump_init();
@@ -193,6 +218,8 @@ int main(void) {
 
   TFT_FillScreen(COLOR_WHITE);
 
+  int photo_cycle = 0;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -201,6 +228,16 @@ int main(void) {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+
+    // Take a photo and draw it every 10 cycles
+    if (photo_cycle <= 0) {
+      SingleCapTransfer_YCbCr(0, 0, camera_buf);
+      TFT_DrawRGB888Buffer(20, 100, 320, 240, camera_buf, 2);
+      photo_cycle = 10;
+    } else {
+      photo_cycle--;
+    }
+
     hum_air = si7021_read_humidity();
     temp_air = si7021_read_temperature();
 
@@ -223,29 +260,31 @@ int main(void) {
     printf("Light: %u  \r\n", light_value);
 
     int moisture_good = 1;
-    if (cap_soil < 800) {
+    if (cap_soil < wet_threshold) {
       moisture_good = 0;
     }
 
     int light_good = 1;
-    if (light_value < 1000) {
+    if (light_value < light_threshold) {
       light_good = 0;
     }
 
     TFT_PrintfAt(50, 10, COLOR_BLACK, 3, "TAMAGOTCHI FLOWER POT");
 
-    TFT_FillRect(120, 240, 150, 20, COLOR_WHITE);
+    TFT_FillRect(90, 240, 150, 20, COLOR_WHITE);
     if (moisture_good) {
-      TFT_PrintfAt(10, 240, COLOR_BLACK, 2, "Moisture: Hydrated  \r\n");
+      TFT_PrintfAt(10, 240, COLOR_BLACK, 2, "Water: Wet (%d) \r\n", cap_soil);
     } else {
-      TFT_PrintfAt(10, 240, COLOR_BLACK, 2, "Moisture: Dry  \r\n");
+      TFT_PrintfAt(10, 240, COLOR_BLACK, 2, "Water: Dry (%d) \r\n", cap_soil);
     }
 
-    TFT_FillRect(90, 260, 100, 20, COLOR_WHITE);
+    TFT_FillRect(90, 260, 180, 20, COLOR_WHITE);
     if (light_good) {
-      TFT_PrintfAt(10, 260, COLOR_BLACK, 2, "Light: Bright  \r\n");
+      TFT_PrintfAt(10, 260, COLOR_BLACK, 2, "Light: Bright (%d) \r\n",
+                   light_value);
     } else {
-      TFT_PrintfAt(10, 260, COLOR_BLACK, 2, "Light: Dim  \r\n");
+      TFT_PrintfAt(10, 260, COLOR_BLACK, 2, "Light: Dim (%d) \r\n",
+                   light_value);
     }
 
     TFT_FillRect(120, 280, 60, 20, COLOR_WHITE);
@@ -255,37 +294,93 @@ int main(void) {
     TFT_PrintfAt(10, 300, COLOR_BLACK, 2, "%d C %d F \r\n", avg_temp,
                  avg_temp_f);
 
-    // Setting how often to water the plant
-    TFT_FillRect(300, 250, 150, 20, COLOR_WHITE);
-    TFT_PrintfAt(300, 250, COLOR_BLACK, 2, "%d days", water_interval_days);
+    // Draw all buttons
+    // Water interval buttons
+    TFT_FillRect(water_interval_minus_x - 1, water_interval_minus_y - 1,
+                 button_width + 2, button_height + 2, COLOR_BLACK);
+    TFT_FillRect(water_interval_minus_x, water_interval_minus_y, button_width,
+                 button_height, COLOR_RED);
+    TFT_PrintfAt(water_interval_minus_x + 15, water_interval_minus_y + 8,
+                 COLOR_BLACK, 2, "-");
 
-    TFT_FillRect(plus_button_x, plus_button_y, button_width, button_height,
+    TFT_FillRect(water_interval_plus_x - 1, water_interval_plus_y - 1,
+                 button_width + 2, button_height + 2, COLOR_BLACK);
+    TFT_FillRect(water_interval_plus_x, water_interval_plus_y, button_width,
+                 button_height, COLOR_GREEN);
+    TFT_PrintfAt(water_interval_plus_x + 15, water_interval_plus_y + 8,
+                 COLOR_BLACK, 2, "+");
+
+    // Draw label for water interval
+    TFT_FillRect(water_interval_minus_x + button_width + 5,
+                 water_interval_minus_y, 70, 20, COLOR_WHITE);
+    TFT_PrintfAt(water_interval_minus_x + button_width + 5,
+                 water_interval_minus_y, COLOR_BLACK, 2, "%d days",
+                 water_interval_days);
+
+    // Wet threshold buttons
+    TFT_FillRect(wet_threshold_minus_x - 1, wet_threshold_minus_y - 1,
+                 button_width + 2, button_height + 2, COLOR_BLACK);
+    TFT_FillRect(wet_threshold_minus_x, wet_threshold_minus_y, button_width,
+                 button_height, COLOR_RED);
+    TFT_PrintfAt(wet_threshold_minus_x + 15, wet_threshold_minus_y + 8,
+                 COLOR_BLACK, 2, "-");
+
+    TFT_FillRect(wet_threshold_plus_x - 1, wet_threshold_plus_y - 1,
+                 button_width + 2, button_height + 2, COLOR_BLACK);
+    TFT_FillRect(wet_threshold_plus_x, wet_threshold_plus_y, button_width,
+                 button_height, COLOR_GREEN);
+    TFT_PrintfAt(wet_threshold_plus_x + 15, wet_threshold_plus_y + 8,
+                 COLOR_BLACK, 2, "+");
+
+    // Draw label for wet threshold
+    TFT_FillRect(wet_threshold_minus_x + button_width + 5,
+                 wet_threshold_minus_y, 70, 20, COLOR_WHITE);
+    TFT_PrintfAt(wet_threshold_minus_x + button_width + 5,
+                 wet_threshold_minus_y, COLOR_BLACK, 2, "W: %d", wet_threshold);
+
+    // Light threshold buttons
+    TFT_FillRect(light_threshold_minus_x - 1, light_threshold_minus_y - 1,
+                 button_width + 2, button_height + 2, COLOR_BLACK);
+    TFT_FillRect(light_threshold_minus_x, light_threshold_minus_y, button_width,
+                 button_height, COLOR_RED);
+    TFT_PrintfAt(light_threshold_minus_x + 15, light_threshold_minus_y + 8,
+                 COLOR_BLACK, 2, "-");
+
+    TFT_FillRect(light_threshold_plus_x - 1, light_threshold_plus_y - 1,
+                 button_width + 2, button_height + 2, COLOR_BLACK);
+    TFT_FillRect(light_threshold_plus_x, light_threshold_plus_y, button_width,
+                 button_height, COLOR_GREEN);
+    TFT_PrintfAt(light_threshold_plus_x + 15, light_threshold_plus_y + 8,
+                 COLOR_BLACK, 2, "+");
+
+    // Draw label for light threshold
+    TFT_FillRect(light_threshold_minus_x + button_width + 5,
+                 light_threshold_minus_y, 90, 20, COLOR_WHITE);
+    TFT_PrintfAt(light_threshold_minus_x + button_width + 5,
+                 light_threshold_minus_y, COLOR_BLACK, 2, "L: %d",
+                 light_threshold);
+
+    // Water now button (spans from left of - button to right of + button)
+    int water_button_width =
+        (water_interval_plus_x + button_width) - water_now_x;
+    TFT_FillRect(water_now_x - 1, water_now_y - 1, water_button_width + 2,
+                 button_height + 2, COLOR_BLACK);
+    TFT_FillRect(water_now_x, water_now_y, water_button_width, button_height,
                  COLOR_GREEN);
-    TFT_FillRect(minus_button_x, minus_button_y, button_width, button_height,
-                 COLOR_RED);
+    TFT_PrintfAt(water_now_x + (water_button_width / 2) - 35, water_now_y + 6,
+                 COLOR_BLACK, 2, "Water");
 
     tamagotchi_feeling = 0;
     if (light_good) {
       tamagotchi_feeling = 1;
     }
 
-    TFT_FillRect(10, 150, 300, 40, COLOR_WHITE);
+    TFT_FillRect(10, 70, 300, 30, COLOR_WHITE);
     if (tamagotchi_feeling == 1) {
-      TFT_PrintfAt(10, 150, COLOR_BLACK, 3, "Plant is happy :)");
-      // TFT_DrawSmiley(320, 150, 100, COLOR_BLACK, COLOR_WHITE, 1);
+      TFT_PrintfAt(10, 70, COLOR_BLACK, 3, "Plant is happy :)");
     } else {
-      TFT_PrintfAt(10, 150, COLOR_BLACK, 3, "Plant is sad :(");
-      // TFT_DrawSmiley(320, 150, 100, COLOR_BLACK, COLOR_WHITE, 1);
+      TFT_PrintfAt(10, 70, COLOR_BLACK, 3, "Plant is sad :(");
     }
-
-    // if (TOUCH_HasNewData()) {
-    //   TOUCH_TouchPoint tp;
-    //   if (TOUCH_ReadTouch(&tp) == HAL_OK && tp.touched) {
-    //     printf("Touch: x=%u y=%u\r\n", tp.x, tp.y);
-
-    //     TFT_DrawPixel(tp.x, tp.y, COLOR_WHITE);
-    //   }
-    // }
   }
   /* USER CODE END 3 */
 }
@@ -386,25 +481,79 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
     if (TOUCH_ReadTouch(&tp) == HAL_OK && tp.touched) {
       printf("Touch: x=%u y=%u\r\n", tp.x, tp.y);
 
-      // Was first button pressed?
-      if (tp.x >= plus_button_x && tp.x <= plus_button_x + button_width &&
-          tp.y >= plus_button_y && tp.y <= plus_button_y + button_height) {
-        printf("Plus button pressed\r\n");
+      // Water interval minus button
+      if (tp.x >= water_interval_minus_x &&
+          tp.x <= water_interval_minus_x + button_width &&
+          tp.y >= water_interval_minus_y &&
+          tp.y <= water_interval_minus_y + button_height) {
+        printf("Water interval minus pressed\r\n");
+        if (water_interval_days > 1) {
+          water_interval_days--;
+        }
+        HAL_Delay(200);
+      }
+      // Water interval plus button
+      else if (tp.x >= water_interval_plus_x &&
+               tp.x <= water_interval_plus_x + button_width &&
+               tp.y >= water_interval_plus_y &&
+               tp.y <= water_interval_plus_y + button_height) {
+        printf("Water interval plus pressed\r\n");
         water_interval_days++;
         HAL_Delay(200);
       }
-
-      // Was second button pressed?
-      else if (tp.x >= minus_button_x &&
-               tp.x <= minus_button_x + button_width &&
-               tp.y >= minus_button_y &&
-               tp.y <= minus_button_y + button_height) {
-        printf("Minus button pressed\r\n");
-        water_interval_days--;
+      // Wet threshold minus button
+      else if (tp.x >= wet_threshold_minus_x &&
+               tp.x <= wet_threshold_minus_x + button_width &&
+               tp.y >= wet_threshold_minus_y &&
+               tp.y <= wet_threshold_minus_y + button_height) {
+        printf("Wet threshold minus pressed\r\n");
+        if (wet_threshold > 100) {
+          wet_threshold -= 50;
+        }
         HAL_Delay(200);
       }
-
-      // TFT_DrawPixel(tp.x, tp.y, COLOR_WHITE);
+      // Wet threshold plus button
+      else if (tp.x >= wet_threshold_plus_x &&
+               tp.x <= wet_threshold_plus_x + button_width &&
+               tp.y >= wet_threshold_plus_y &&
+               tp.y <= wet_threshold_plus_y + button_height) {
+        printf("Wet threshold plus pressed\r\n");
+        wet_threshold += 50;
+        HAL_Delay(200);
+      }
+      // Light threshold minus button
+      else if (tp.x >= light_threshold_minus_x &&
+               tp.x <= light_threshold_minus_x + button_width &&
+               tp.y >= light_threshold_minus_y &&
+               tp.y <= light_threshold_minus_y + button_height) {
+        printf("Light threshold minus pressed\r\n");
+        if (light_threshold > 100) {
+          light_threshold -= 100;
+        }
+        HAL_Delay(200);
+      }
+      // Light threshold plus button
+      else if (tp.x >= light_threshold_plus_x &&
+               tp.x <= light_threshold_plus_x + button_width &&
+               tp.y >= light_threshold_plus_y &&
+               tp.y <= light_threshold_plus_y + button_height) {
+        printf("Light threshold plus pressed\r\n");
+        light_threshold += 100;
+        HAL_Delay(200);
+      }
+      // Water now button (spans from left of - button to right of + button)
+      else {
+        int water_button_width =
+            (water_interval_plus_x + button_width) - water_now_x;
+        if (tp.x >= water_now_x && tp.x <= water_now_x + water_button_width &&
+            tp.y >= water_now_y && tp.y <= water_now_y + button_height) {
+          printf("Water now pressed\r\n");
+          pump_on();
+          HAL_Delay(2000);
+          pump_off();
+          HAL_Delay(200);
+        }
+      }
     }
     idle = 1;
   }

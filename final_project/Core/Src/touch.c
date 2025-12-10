@@ -2,7 +2,6 @@
 #include "stm32l4xx_hal.h"
 #include <stdio.h>
 
-/* We will use I2C1 (global handle from CubeMX) */
 extern I2C_HandleTypeDef hi2c1;
 
 static I2C_HandleTypeDef *TOUCH_hi2c = NULL;
@@ -16,10 +15,6 @@ static volatile uint8_t TOUCH_new_data_flag = 0;
 #define TOUCH_REG_P1_XL 0x04
 #define TOUCH_REG_P1_YH 0x05
 #define TOUCH_REG_P1_YL 0x06
-
-// Optional: chip/vendor ID registers (may vary slightly between variants)
-#define TOUCH_REG_VENDOR_ID 0xA8
-#define TOUCH_REG_CHIP_ID 0xA3
 
 static HAL_StatusTypeDef TOUCH_ReadReg(uint8_t reg, uint8_t *data,
                                        uint16_t len);
@@ -89,27 +84,22 @@ uint8_t TOUCH_HasNewData(void) { return TOUCH_new_data_flag; }
 static void TOUCH_GPIO_Init(void) {
   GPIO_InitTypeDef gi = {0};
 
-  /* Enable GPIOF clock (if not already) */
   __HAL_RCC_GPIOF_CLK_ENABLE();
 
-  /* PF7: RST - push-pull output, no pull, low/med speed */
   gi.Pin = TOUCH_RST_Pin;
   gi.Mode = GPIO_MODE_OUTPUT_PP;
   gi.Pull = GPIO_NOPULL;
   gi.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(TOUCH_RST_GPIO_Port, &gi);
 
-  /* Default RST high (inactive) */
   HAL_GPIO_WritePin(TOUCH_RST_GPIO_Port, TOUCH_RST_Pin, GPIO_PIN_SET);
 
-  /* PF9: INT - input with EXTI on falling edge, pull-up */
   gi.Pin = TOUCH_INT_Pin;
   gi.Mode = GPIO_MODE_IT_FALLING;
   gi.Pull = GPIO_PULLUP;
   gi.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(TOUCH_INT_GPIO_Port, &gi);
 
-  /* Enable EXTI line interrupt for PF9 (EXTI9_5_IRQn for pins 5..9) */
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 }
